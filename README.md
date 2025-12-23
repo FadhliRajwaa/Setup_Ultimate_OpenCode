@@ -66,7 +66,6 @@ Gunakan plugin **shekohex** (`opencode-google-antigravity-auth`) yang memiliki f
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "google/claude-opus-4-5-thinking",
   "plugin": [
     "opencode-google-antigravity-auth"
   ]
@@ -198,79 +197,69 @@ Superpowers adalah plugin yang menyediakan skills/workflows untuk meningkatkan p
 >
 > **Dokumentasi:** https://github.com/obra/superpowers/blob/main/docs/README.opencode.md
 
+> ⚠️ **PERINGATAN ANTIGRAVITY:** Plugin asli memiliki bug yang menyebabkan model default berubah ke `gemini-3-pro-preview`. Panduan ini menggunakan **versi modifikasi** yang memperbaiki bug tersebut.
+
 ---
 
 ### Langkah 1: Clone Repository Superpowers
 
 **Windows (PowerShell):**
-
 ```powershell
-# Clone langsung ke folder superpowers di .config/opencode
 git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\.config\opencode\superpowers"
-
-# Verifikasi
-ls "$env:USERPROFILE\.config\opencode\superpowers"
 ```
 
 **Linux/macOS:**
-
 ```bash
-# Clone langsung ke folder superpowers
-mkdir -p ~/.config/opencode/superpowers
 git clone https://github.com/obra/superpowers.git ~/.config/opencode/superpowers
-
-# Verifikasi
-ls ~/.config/opencode/superpowers
 ```
 
 ---
 
-### Langkah 2: Buat Folder Plugin dan Symlink
+### Langkah 2: Buat Folder Plugin
 
-**Windows (PowerShell sebagai Administrator):**
-
+**Windows (PowerShell):**
 ```powershell
-# Buat folder plugin
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\opencode\plugin"
-
-# Buat symlink ke plugin superpowers
-New-Item -ItemType SymbolicLink `
-  -Path "$env:USERPROFILE\.config\opencode\plugin\superpowers.js" `
-  -Target "$env:USERPROFILE\.config\opencode\superpowers\.opencode\plugin\superpowers.js"
 ```
 
 **Linux/macOS:**
-
 ```bash
 mkdir -p ~/.config/opencode/plugin
-ln -sf ~/.config/opencode/superpowers/.opencode/plugin/superpowers.js ~/.config/opencode/plugin/superpowers.js
 ```
 
 ---
 
-### Langkah 3: Perbaiki Bug Import Path (PENTING!)
+### Langkah 3: Buat File Plugin yang Sudah Diperbaiki
 
-> ⚠️ **BUG:** Plugin asli menggunakan relative import `'../../lib/skills-core.js'` yang tidak berfungsi dengan symlink.
->
-> **PERBAIKAN:** Ganti dengan absolute path menggunakan `os.homedir()`.
+> ⚠️ **JANGAN GUNAKAN SYMLINK** ke file asli karena memiliki 2 bug:
+> 1. Import path relatif tidak berfungsi dengan symlink
+> 2. Inject pada `session.created` menyebabkan model default berubah
 
-**Edit file plugin:**
+Buat file baru dengan kode yang sudah diperbaiki:
 
+**Windows:**
 ```powershell
-# Windows
 notepad "$env:USERPROFILE\.config\opencode\plugin\superpowers.js"
 ```
 
-**GANTI SELURUH ISI FILE dengan kode yang sudah diperbaiki (VERSI 1.0.1 FIXED):**
+**Linux/macOS:**
+```bash
+nano ~/.config/opencode/plugin/superpowers.js
+```
+
+**PASTE KODE BERIKUT (VERSI 1.1.0 - BUG FIXED):**
 
 ```javascript
 /**
  * Superpowers plugin for OpenCode.ai
- * VERSI: 1.0.1 (FIXED - Absolute path untuk symlink compatibility)
+ * VERSI: 1.1.0 (FIXED - Antigravity Compatible)
  * 
  * BUG YANG DIPERBAIKI:
- * - Import path '../../lib/skills-core.js' tidak berfungsi dengan symlink
- * - Solusi: Menggunakan absolute path dengan os.homedir()
+ * 1. Import path relatif → absolute path dengan os.homedir()
+ * 2. session.created injection → DINONAKTIFKAN (menyebabkan bug model default)
+ * 
+ * FITUR BARU:
+ * - Tool inject_superpowers untuk manual injection jika diperlukan
  */
 
 import path from 'path';
@@ -282,7 +271,6 @@ import { tool } from '@opencode-ai/plugin/tool';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const homeDir = os.homedir();
 
-// PERBAIKAN BUG: Absolute path berdasarkan os.homedir()
 const superpowersDir = path.join(homeDir, '.config', 'opencode', 'superpowers');
 const skillsCoreModule = path.join(superpowersDir, 'lib', 'skills-core.js');
 
@@ -403,11 +391,20 @@ ${toolMapping}
           }
           return output;
         }
+      }),
+      inject_superpowers: tool({
+        description: 'Manually inject superpowers context. Use this if you want superpowers guidance.',
+        args: {},
+        execute: async (args, context) => {
+          const success = await injectBootstrap(context.sessionID, false);
+          return success ? 'Superpowers context injected.' : 'Failed to inject.';
+        }
       })
     },
     event: async ({ event }) => {
       const sessionID = event.properties?.info?.id || event.properties?.sessionID || event.session?.id;
-      if (event.type === 'session.created' && sessionID) await injectBootstrap(sessionID, false);
+      // DINONAKTIFKAN: session.created injection (menyebabkan bug model di Antigravity)
+      // if (event.type === 'session.created' && sessionID) await injectBootstrap(sessionID, false);
       if (event.type === 'session.compacted' && sessionID) await injectBootstrap(sessionID, true);
     }
   };
@@ -416,14 +413,27 @@ ${toolMapping}
 
 ---
 
-### Langkah 4: Verifikasi Skills
+### Langkah 4: Verifikasi Instalasi
 
+**Windows:**
 ```powershell
-# Hitung jumlah skill folders
+# Cek skills
 (Get-ChildItem -Directory "$env:USERPROFILE\.config\opencode\superpowers\skills").Count
+# Output: 14 atau lebih
+
+# Cek plugin file
+Test-Path "$env:USERPROFILE\.config\opencode\plugin\superpowers.js"
+# Output: True
 ```
 
-**Output:** `14` atau lebih
+**Linux/macOS:**
+```bash
+ls ~/.config/opencode/superpowers/skills | wc -l
+# Output: 14 atau lebih
+
+ls ~/.config/opencode/plugin/superpowers.js
+# Output: path ke file
+```
 
 ---
 
@@ -433,10 +443,45 @@ ${toolMapping}
 opencode
 ```
 
-Ketik di OpenCode:
-
+**Test tools:**
 ```
-find_skills
+find_skills          # List semua skills
+inject_superpowers   # Inject context superpowers (opsional)
+use_skill superpowers:brainstorming  # Load skill tertentu
+```
+
+---
+
+### Reinstall Superpowers (Jika Ada Masalah)
+
+**Windows (PowerShell):**
+```powershell
+# 1. Hapus semua file superpowers
+Remove-Item -Recurse -Force "$env:USERPROFILE\.config\opencode\superpowers" -ErrorAction SilentlyContinue
+Remove-Item -Force "$env:USERPROFILE\.config\opencode\plugin\superpowers.js" -ErrorAction SilentlyContinue
+
+# 2. Clone ulang repository
+git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\.config\opencode\superpowers"
+
+# 3. Buat file plugin baru (copy-paste kode v1.1.0 di atas)
+notepad "$env:USERPROFILE\.config\opencode\plugin\superpowers.js"
+
+# 4. Restart OpenCode
+```
+
+**Linux/macOS:**
+```bash
+# 1. Hapus semua file superpowers
+rm -rf ~/.config/opencode/superpowers
+rm -f ~/.config/opencode/plugin/superpowers.js
+
+# 2. Clone ulang repository
+git clone https://github.com/obra/superpowers.git ~/.config/opencode/superpowers
+
+# 3. Buat file plugin baru (copy-paste kode v1.1.0 di atas)
+nano ~/.config/opencode/plugin/superpowers.js
+
+# 4. Restart OpenCode
 ```
 
 ---
@@ -444,13 +489,21 @@ find_skills
 ### Update Superpowers
 
 ```powershell
+# Windows
 cd "$env:USERPROFILE\.config\opencode\superpowers"
 git pull
 ```
 
-> ⚠️ Setelah `git pull`, edit kembali `superpowers.js` dengan versi fixed (Langkah 3)
+```bash
+# Linux/macOS
+cd ~/.config/opencode/superpowers
+git pull
+```
+
+> ⚠️ **PENTING:** Setelah `git pull`, file plugin di `~/.config/opencode/plugin/superpowers.js` **TIDAK perlu diubah** karena sudah menggunakan versi modifikasi terpisah dari repository.
 
 ---
+
 
 ## 5. Konfigurasi Plugin Tambahan
 
@@ -704,7 +757,6 @@ add shadcn button component to my project
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "google/gemini-3-pro-high",
   "plugin": [
     "opencode-google-antigravity-auth",
     "@nick-vi/opencode-type-inject@1.3.1",
