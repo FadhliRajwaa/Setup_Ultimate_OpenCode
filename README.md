@@ -11,8 +11,9 @@ Panduan lengkap instalasi dan konfigurasi OpenCode dengan Superpowers skills dan
 3. [Konfigurasi Antigravity](#3-konfigurasi-antigravity)
 4. [Setup Plugin Superpowers](#4-setup-plugin-superpowers)
 5. [Konfigurasi Plugin Tambahan](#5-konfigurasi-plugin-tambahan)
-6. [File Konfigurasi Lengkap](#6-file-konfigurasi-lengkap)
-7. [Troubleshooting](#7-troubleshooting)
+6. [Konfigurasi MCP Servers](#6-konfigurasi-mcp-servers)
+7. [File Konfigurasi Lengkap](#7-file-konfigurasi-lengkap)
+8. [Troubleshooting](#8-troubleshooting)
 
 ---
 
@@ -518,9 +519,185 @@ Buat file `~/.config/opencode/dcp.jsonc`:
 
 ---
 
-## 6. File Konfigurasi Lengkap
+## 6. Konfigurasi MCP Servers
+
+MCP (Model Context Protocol) adalah standar untuk menghubungkan AI dengan tools eksternal dan sumber data.
+
+### MCP yang Tersedia:
+
+| MCP | Tipe | Fungsi |
+|-----|------|--------|
+| **Context7** | Local | Dokumentasi library/framework real-time |
+| **Grep App** | Remote | Search code di GitHub repositories |
+| **Exa Search** | Remote | AI-powered web search |
+| **Shadcn** | Local | Component library untuk React |
+
+---
+
+### 6.1 Context7 (Library Documentation)
+
+**Fungsi:** Mengakses dokumentasi library/framework secara real-time.
+
+**Langkah Instalasi:**
+
+1. **Daftar di Upstash Context7:**
+   - Buka https://context7.io/
+   - Login dengan GitHub/Google
+   - Dapatkan API Key
+
+2. **Tambahkan ke opencode.json:**
+```json
+{
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp", "--api-key", "YOUR_API_KEY"],
+      "enabled": true
+    }
+  }
+}
+```
+
+3. **Ganti `YOUR_API_KEY`** dengan API key dari Context7.
+
+**Cara Penggunaan:**
+Di OpenCode, ketik:
+```
+use context7 to get documentation for React hooks
+```
+
+---
+
+### 6.2 Grep App (Code Search)
+
+**Fungsi:** Mencari code snippets di seluruh GitHub repositories.
+
+**Langkah Instalasi:**
+
+1. **Tidak perlu API key** - Gratis dan langsung bisa digunakan.
+
+2. **Tambahkan ke opencode.json:**
+```json
+{
+  "mcp": {
+    "grep_app": {
+      "type": "remote",
+      "url": "https://mcp.grep.app"
+    }
+  }
+}
+```
+
+**Cara Penggunaan:**
+Di OpenCode, ketik:
+```
+search for "useEffect cleanup" examples in React projects
+```
+
+---
+
+### 6.3 Exa Search (AI Web Search)
+
+**Fungsi:** Web search dengan AI yang mengembalikan hasil relevan.
+
+**Langkah Instalasi:**
+
+1. **Daftar di Exa:**
+   - Buka https://exa.ai/
+   - Buat akun dan dapatkan API Key
+
+2. **Tambahkan ke opencode.json:**
+```json
+{
+  "mcp": {
+    "exa_search": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer YOUR_EXA_API_KEY"
+      }
+    }
+  }
+}
+```
+
+3. **Ganti `YOUR_EXA_API_KEY`** dengan API key dari Exa.
+
+**Cara Penggunaan:**
+Di OpenCode, ketik:
+```
+search for latest Next.js 15 features
+```
+
+---
+
+### 6.4 Shadcn UI (Component Library)
+
+**Fungsi:** Akses component library Shadcn untuk React/Next.js.
+
+**Langkah Instalasi:**
+
+1. **Tidak perlu API key** - Langsung bisa digunakan.
+
+2. **Tambahkan ke opencode.json:**
+```json
+{
+  "mcp": {
+    "shadcn": {
+      "type": "local",
+      "command": ["npx", "-y", "shadcn", "mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+**Cara Penggunaan:**
+Di OpenCode, ketik:
+```
+add shadcn button component to my project
+```
+
+---
+
+### Konfigurasi MCP Lengkap
+
+```json
+{
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp", "--api-key", "YOUR_CONTEXT7_API_KEY"],
+      "enabled": true
+    },
+    "grep_app": {
+      "type": "remote",
+      "url": "https://mcp.grep.app"
+    },
+    "exa_search": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer YOUR_EXA_API_KEY"
+      }
+    },
+    "shadcn": {
+      "type": "local",
+      "command": ["npx", "-y", "shadcn", "mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+---
+
+## 7. File Konfigurasi Lengkap
 
 ### `~/.config/opencode/opencode.json`
+
 
 > **Referensi:** [shekohex/opencode-google-antigravity-auth](https://github.com/shekohex/opencode-google-antigravity-auth)
 
@@ -654,7 +831,7 @@ Buat file `~/.config/opencode/dcp.jsonc`:
 ---
 
 
-## 7. Troubleshooting
+## 8. Troubleshooting
 
 ### Error: "Requested entity was not found" (404)
 
