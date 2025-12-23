@@ -65,7 +65,7 @@ Gunakan plugin **shekohex** (`opencode-google-antigravity-auth`) yang memiliki f
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "google/gemini-3-pro-high",
+  "model": "google/claude-opus-4-5-thinking",
   "plugin": [
     "opencode-google-antigravity-auth"
   ]
@@ -85,68 +85,88 @@ opencode auth login
 
 ### Langkah 4: Definisikan Model Antigravity
 
+> **PENTING:** Konfigurasi model harus mengikuti format resmi dari [shekohex/opencode-google-antigravity-auth](https://github.com/shekohex/opencode-google-antigravity-auth).
+>
+> Model Claude menggunakan prefix `gemini-claude-*` dan suffix level thinking (`-high`, `-medium`, `-low`).
+
 Tambahkan model Antigravity yang tersedia ke konfigurasi:
 
 ```json
 {
   "provider": {
     "google": {
+      "npm": "@ai-sdk/google",
       "models": {
+        "gemini-3-pro-preview": {
+          "id": "gemini-3-pro-preview",
+          "name": "Gemini 3 Pro Preview",
+          "reasoning": true,
+          "limit": { "context": 1000000, "output": 64000 },
+          "modalities": { "input": ["text", "image", "video", "audio", "pdf"], "output": ["text"] }
+        },
         "gemini-3-pro-high": {
-          "name": "Gemini 3 Pro High (Antigravity)",
-          "limit": { "context": 1048576, "output": 65535 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          }
+          "id": "gemini-3-pro-preview",
+          "name": "Gemini 3 Pro (High Thinking)",
+          "options": { "thinkingConfig": { "thinkingLevel": "high", "includeThoughts": true } }
+        },
+        "gemini-3-pro-medium": {
+          "id": "gemini-3-pro-preview",
+          "name": "Gemini 3 Pro (Medium Thinking)",
+          "options": { "thinkingConfig": { "thinkingLevel": "medium", "includeThoughts": true } }
         },
         "gemini-3-pro-low": {
-          "name": "Gemini 3 Pro Low (Antigravity)",
-          "limit": { "context": 1048576, "output": 65535 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          }
+          "id": "gemini-3-pro-preview",
+          "name": "Gemini 3 Pro (Low Thinking)",
+          "options": { "thinkingConfig": { "thinkingLevel": "low", "includeThoughts": true } }
         },
         "gemini-3-flash": {
-          "name": "Gemini 3 Flash (Antigravity)",
+          "id": "gemini-3-flash",
+          "name": "Gemini 3 Flash",
+          "reasoning": true,
           "limit": { "context": 1048576, "output": 65536 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          }
+          "modalities": { "input": ["text", "image", "video", "audio", "pdf"], "output": ["text"] }
         },
-        "claude-sonnet-4-5": {
-          "name": "Claude Sonnet 4.5 (Antigravity)",
+        "gemini-3-flash-high": {
+          "id": "gemini-3-flash",
+          "name": "Gemini 3 Flash (High Thinking)",
+          "options": { "thinkingConfig": { "thinkingLevel": "high", "includeThoughts": true } }
+        },
+        "gemini-2.5-flash": {
+          "id": "gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "reasoning": true,
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": { "input": ["text", "image", "audio", "video", "pdf"], "output": ["text"] }
+        },
+        "gemini-claude-sonnet-4-5": {
+          "id": "gemini-claude-sonnet-4-5",
+          "name": "Claude Sonnet 4.5",
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          }
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
         },
-        "claude-sonnet-4-5-thinking": {
-          "name": "Claude Sonnet 4.5 Thinking (Antigravity)",
+        "gemini-claude-sonnet-4-5-thinking-high": {
+          "id": "gemini-claude-sonnet-4-5-thinking",
+          "name": "Claude Sonnet 4.5 (High Thinking)",
+          "reasoning": true,
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          }
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
+          "options": { "thinkingConfig": { "thinkingBudget": 32000, "includeThoughts": true } }
         },
-        "claude-opus-4-5-thinking": {
-          "name": "Claude Opus 4.5 Thinking (Antigravity)",
+        "gemini-claude-opus-4-5-thinking-high": {
+          "id": "gemini-claude-opus-4-5-thinking",
+          "name": "Claude Opus 4.5 (High Thinking)",
+          "reasoning": true,
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          }
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
+          "options": { "thinkingConfig": { "thinkingBudget": 32000, "includeThoughts": true } }
         },
-        "gpt-oss-120b-medium": {
-          "name": "GPT-OSS 120B Medium (Antigravity)",
-          "limit": { "context": 131072, "output": 32768 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          }
+        "gemini-claude-opus-4-5-thinking-medium": {
+          "id": "gemini-claude-opus-4-5-thinking",
+          "name": "Claude Opus 4.5 (Medium Thinking)",
+          "reasoning": true,
+          "limit": { "context": 200000, "output": 64000 },
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
+          "options": { "thinkingConfig": { "thinkingBudget": 16000, "includeThoughts": true } }
         }
       }
     }
@@ -154,7 +174,20 @@ Tambahkan model Antigravity yang tersedia ke konfigurasi:
 }
 ```
 
+**Model yang Tersedia:**
+
+| Model | Tipe | Catatan |
+|-------|------|---------|
+| `gemini-3-pro-preview` | Gemini | Base model tanpa thinking |
+| `gemini-3-pro-high/medium/low` | Gemini | Dengan thinking level |
+| `gemini-3-flash` | Gemini | Fast model |
+| `gemini-2.5-flash` | Gemini | Legacy stable |
+| `gemini-claude-sonnet-4-5` | Claude | Tanpa thinking |
+| `gemini-claude-sonnet-4-5-thinking-high` | Claude | Dengan thinking budget 32K |
+| `gemini-claude-opus-4-5-thinking-high/medium` | Claude | Opus dengan thinking |
+
 ---
+
 
 ## 4. Setup Plugin Superpowers
 
@@ -489,6 +522,8 @@ Buat file `~/.config/opencode/dcp.jsonc`:
 
 ### `~/.config/opencode/opencode.json`
 
+> **Referensi:** [shekohex/opencode-google-antigravity-auth](https://github.com/shekohex/opencode-google-antigravity-auth)
+
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
@@ -513,41 +548,86 @@ Buat file `~/.config/opencode/dcp.jsonc`:
   },
   "provider": {
     "google": {
+      "npm": "@ai-sdk/google",
       "models": {
+        "gemini-3-pro-preview": {
+          "id": "gemini-3-pro-preview",
+          "name": "Gemini 3 Pro Preview",
+          "reasoning": true,
+          "limit": { "context": 1000000, "output": 64000 },
+          "modalities": { "input": ["text", "image", "video", "audio", "pdf"], "output": ["text"] }
+        },
         "gemini-3-pro-high": {
-          "name": "Gemini 3 Pro High (Antigravity)",
-          "limit": { "context": 1048576, "output": 65535 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+          "id": "gemini-3-pro-preview",
+          "name": "Gemini 3 Pro (High Thinking)",
+          "options": { "thinkingConfig": { "thinkingLevel": "high", "includeThoughts": true } }
+        },
+        "gemini-3-pro-medium": {
+          "id": "gemini-3-pro-preview",
+          "name": "Gemini 3 Pro (Medium Thinking)",
+          "options": { "thinkingConfig": { "thinkingLevel": "medium", "includeThoughts": true } }
         },
         "gemini-3-pro-low": {
-          "name": "Gemini 3 Pro Low (Antigravity)",
-          "limit": { "context": 1048576, "output": 65535 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+          "id": "gemini-3-pro-preview",
+          "name": "Gemini 3 Pro (Low Thinking)",
+          "options": { "thinkingConfig": { "thinkingLevel": "low", "includeThoughts": true } }
         },
         "gemini-3-flash": {
-          "name": "Gemini 3 Flash (Antigravity)",
+          "id": "gemini-3-flash",
+          "name": "Gemini 3 Flash",
+          "reasoning": true,
           "limit": { "context": 1048576, "output": 65536 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+          "modalities": { "input": ["text", "image", "video", "audio", "pdf"], "output": ["text"] }
         },
-        "claude-sonnet-4-5": {
-          "name": "Claude Sonnet 4.5 (Antigravity)",
+        "gemini-3-flash-high": {
+          "id": "gemini-3-flash",
+          "name": "Gemini 3 Flash (High Thinking)",
+          "options": { "thinkingConfig": { "thinkingLevel": "high", "includeThoughts": true } }
+        },
+        "gemini-2.5-flash": {
+          "id": "gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "reasoning": true,
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": { "input": ["text", "image", "audio", "video", "pdf"], "output": ["text"] }
+        },
+        "gemini-claude-sonnet-4-5": {
+          "id": "gemini-claude-sonnet-4-5",
+          "name": "Claude Sonnet 4.5",
           "limit": { "context": 200000, "output": 64000 },
           "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
         },
-        "claude-sonnet-4-5-thinking": {
-          "name": "Claude Sonnet 4.5 Thinking (Antigravity)",
+        "gemini-claude-sonnet-4-5-thinking-high": {
+          "id": "gemini-claude-sonnet-4-5-thinking",
+          "name": "Claude Sonnet 4.5 (High Thinking)",
+          "reasoning": true,
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
+          "options": { "thinkingConfig": { "thinkingBudget": 32000, "includeThoughts": true } }
         },
-        "claude-opus-4-5-thinking": {
-          "name": "Claude Opus 4.5 Thinking (Antigravity)",
+        "gemini-claude-opus-4-5-thinking-high": {
+          "id": "gemini-claude-opus-4-5-thinking",
+          "name": "Claude Opus 4.5 (High Thinking)",
+          "reasoning": true,
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
+          "options": { "thinkingConfig": { "thinkingBudget": 32000, "includeThoughts": true } }
         },
-        "gpt-oss-120b-medium": {
-          "name": "GPT-OSS 120B Medium (Antigravity)",
-          "limit": { "context": 131072, "output": 32768 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+        "gemini-claude-opus-4-5-thinking-medium": {
+          "id": "gemini-claude-opus-4-5-thinking",
+          "name": "Claude Opus 4.5 (Medium Thinking)",
+          "reasoning": true,
+          "limit": { "context": 200000, "output": 64000 },
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
+          "options": { "thinkingConfig": { "thinkingBudget": 16000, "includeThoughts": true } }
+        },
+        "gemini-claude-opus-4-5-thinking-low": {
+          "id": "gemini-claude-opus-4-5-thinking",
+          "name": "Claude Opus 4.5 (Low Thinking)",
+          "reasoning": true,
+          "limit": { "context": 200000, "output": 64000 },
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
+          "options": { "thinkingConfig": { "thinkingBudget": 4000, "includeThoughts": true } }
         }
       }
     }
@@ -573,6 +653,7 @@ Buat file `~/.config/opencode/dcp.jsonc`:
 
 ---
 
+
 ## 7. Troubleshooting
 
 ### Error: "Requested entity was not found" (404)
@@ -582,7 +663,7 @@ Buat file `~/.config/opencode/dcp.jsonc`:
 **Solusi:** Pastikan ada konfigurasi `"model":` di `opencode.json`:
 
 ```json
-"model": "google/gemini-3-pro-high"
+"model": "google/claude-opus-4-5-thinking"
 ```
 
 ### Error: EBUSY saat instalasi plugin
@@ -634,7 +715,7 @@ use_skill superpowers:brainstorming
 
 - [OpenCode Documentation](https://opencode.ai/docs/)
 - [Antigravity Auth Plugin (shekohex)](https://github.com/shekohex/opencode-google-antigravity-auth)
-- [Superpowers Skills (obra)](https://github.com/obra/superpowers)
+- [Superpowers Skills](https://github.com/obra/superpowers)
 - [DCP Plugin](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning)
 
 ---
