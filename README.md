@@ -37,7 +37,7 @@ Panduan lengkap instalasi dan konfigurasi OpenCode dengan Superpowers skills dan
 ### Langkah 1: Install OpenCode via Bun
 
 ```powershell
-bun install -g opencode
+bun add -g opencode-ai
 ```
 
 ### Langkah 2: Verifikasi Instalasi
