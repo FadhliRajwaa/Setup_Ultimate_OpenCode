@@ -65,7 +65,7 @@ Gunakan plugin **shekohex** (`opencode-google-antigravity-auth`) yang memiliki f
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "google/claude-opus-4-5-thinking",
+  "model": "google/gemini-3-pro-high",
   "plugin": [
     "opencode-google-antigravity-auth"
   ]
@@ -492,7 +492,7 @@ Buat file `~/.config/opencode/dcp.jsonc`:
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "google/claude-opus-4-5-thinking",
+  "model": "google/gemini-3-pro-high",
   "plugin": [
     "opencode-google-antigravity-auth",
     "@nick-vi/opencode-type-inject@1.3.1",
