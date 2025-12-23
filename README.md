@@ -582,7 +582,7 @@ Buat file `~/.config/opencode/dcp.jsonc`:
 **Solusi:** Pastikan ada konfigurasi `"model":` di `opencode.json`:
 
 ```json
-"model": "google/claude-opus-4-5-thinking"
+"model": "google/gemini-3-pro-high"
 ```
 
 ### Error: EBUSY saat instalasi plugin
