@@ -92,7 +92,6 @@ opencode auth login
 Tambahkan model Antigravity yang tersedia ke konfigurasi:
 
 ```json
-{
   "provider": {
     "google": {
       "npm": "@ai-sdk/google",
@@ -102,76 +101,163 @@ Tambahkan model Antigravity yang tersedia ke konfigurasi:
           "name": "Gemini 3 Pro Preview",
           "reasoning": true,
           "limit": { "context": 1000000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "video", "audio", "pdf"], "output": ["text"] }
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
         },
         "gemini-3-pro-high": {
           "id": "gemini-3-pro-preview",
           "name": "Gemini 3 Pro (High Thinking)",
-          "options": { "thinkingConfig": { "thinkingLevel": "high", "includeThoughts": true } }
+          "options": {
+            "thinkingConfig": {
+              "thinkingLevel": "high",
+              "includeThoughts": true
+            }
+          }
         },
         "gemini-3-pro-medium": {
           "id": "gemini-3-pro-preview",
           "name": "Gemini 3 Pro (Medium Thinking)",
-          "options": { "thinkingConfig": { "thinkingLevel": "medium", "includeThoughts": true } }
+          "options": {
+            "thinkingConfig": {
+              "thinkingLevel": "medium",
+              "includeThoughts": true
+            }
+          }
         },
         "gemini-3-pro-low": {
           "id": "gemini-3-pro-preview",
           "name": "Gemini 3 Pro (Low Thinking)",
-          "options": { "thinkingConfig": { "thinkingLevel": "low", "includeThoughts": true } }
+          "options": {
+            "thinkingConfig": {
+              "thinkingLevel": "low",
+              "includeThoughts": true
+            }
+          }
         },
         "gemini-3-flash": {
           "id": "gemini-3-flash",
           "name": "Gemini 3 Flash",
           "reasoning": true,
           "limit": { "context": 1048576, "output": 65536 },
-          "modalities": { "input": ["text", "image", "video", "audio", "pdf"], "output": ["text"] }
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
         },
         "gemini-3-flash-high": {
           "id": "gemini-3-flash",
           "name": "Gemini 3 Flash (High Thinking)",
-          "options": { "thinkingConfig": { "thinkingLevel": "high", "includeThoughts": true } }
+          "options": {
+            "thinkingConfig": {
+              "thinkingLevel": "high",
+              "includeThoughts": true
+            }
+          }
         },
         "gemini-2.5-flash": {
           "id": "gemini-2.5-flash",
           "name": "Gemini 2.5 Flash",
           "reasoning": true,
           "limit": { "context": 1048576, "output": 65536 },
-          "modalities": { "input": ["text", "image", "audio", "video", "pdf"], "output": ["text"] }
+          "modalities": {
+            "input": ["text", "image", "audio", "video", "pdf"],
+            "output": ["text"]
+          }
         },
         "gemini-claude-sonnet-4-5": {
           "id": "gemini-claude-sonnet-4-5",
           "name": "Claude Sonnet 4.5",
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
         },
         "gemini-claude-sonnet-4-5-thinking-high": {
           "id": "gemini-claude-sonnet-4-5-thinking",
           "name": "Claude Sonnet 4.5 (High Thinking)",
           "reasoning": true,
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
-          "options": { "thinkingConfig": { "thinkingBudget": 32000, "includeThoughts": true } }
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "options": {
+            "thinkingConfig": {
+              "thinkingBudget": 32000,
+              "includeThoughts": true
+            }
+          }
+        },
+        "gemini-claude-sonnet-4-5-thinking-medium": {
+          "id": "gemini-claude-sonnet-4-5-thinking",
+          "name": "Claude Sonnet 4.5 (Medium Thinking)",
+          "reasoning": true,
+          "limit": { "context": 200000, "output": 64000 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "options": {
+            "thinkingConfig": {
+              "thinkingBudget": 16000,
+              "includeThoughts": true
+            }
+          }
         },
         "gemini-claude-opus-4-5-thinking-high": {
           "id": "gemini-claude-opus-4-5-thinking",
           "name": "Claude Opus 4.5 (High Thinking)",
           "reasoning": true,
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
-          "options": { "thinkingConfig": { "thinkingBudget": 32000, "includeThoughts": true } }
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "options": {
+            "thinkingConfig": {
+              "thinkingBudget": 32000,
+              "includeThoughts": true
+            }
+          }
         },
         "gemini-claude-opus-4-5-thinking-medium": {
           "id": "gemini-claude-opus-4-5-thinking",
           "name": "Claude Opus 4.5 (Medium Thinking)",
           "reasoning": true,
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
-          "options": { "thinkingConfig": { "thinkingBudget": 16000, "includeThoughts": true } }
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "options": {
+            "thinkingConfig": {
+              "thinkingBudget": 16000,
+              "includeThoughts": true
+            }
+          }
+        },
+        "gemini-claude-opus-4-5-thinking-low": {
+          "id": "gemini-claude-opus-4-5-thinking",
+          "name": "Claude Opus 4.5 (Low Thinking)",
+          "reasoning": true,
+          "limit": { "context": 200000, "output": 64000 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "options": {
+            "thinkingConfig": {
+              "thinkingBudget": 4000,
+              "includeThoughts": true
+            }
+          }
         }
       }
     }
-  }
-}
+  },
 ```
 
 **Model yang Tersedia:**
