@@ -634,7 +634,7 @@ use_skill superpowers:brainstorming
 
 - [OpenCode Documentation](https://opencode.ai/docs/)
 - [Antigravity Auth Plugin (shekohex)](https://github.com/shekohex/opencode-google-antigravity-auth)
-- [Superpowers Skills](https://github.com/superpowers-ai/superpowers)
+- [Superpowers Skills (obra)](https://github.com/obra/superpowers)
 - [DCP Plugin](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning)
 
 ---
