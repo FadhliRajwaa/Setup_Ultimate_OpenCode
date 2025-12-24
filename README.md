@@ -754,7 +754,7 @@ function mustEnable() {
 }
 
 function baseDirFrom(ctx) {
-  return ctx.worktree || ctx.directory;
+  return ctx?.worktree || ctx?.directory || process.cwd();
 }
 
 function resolvePath(inputPath, baseDir) {
@@ -913,6 +913,7 @@ export default async function UnsafeFsPlugin(ctx) {
     },
   };
 }
+
 ```
 
 ### 7.3 Aktifkan Environment Variables
