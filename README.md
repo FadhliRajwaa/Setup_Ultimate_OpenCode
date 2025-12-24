@@ -874,7 +874,7 @@ export default async function UnsafeFsPlugin(ctx) {
       }),
 
       fs_list_raw: tool({
-        description: 'List directory including hidden & ignored files.',
+        description: 'List directory including hidden & ignored files. Returns formatted text list.',
         args: {
           path: tool.schema.string().optional(),
           maxItems: tool.schema.number().optional(),
@@ -888,31 +888,39 @@ export default async function UnsafeFsPlugin(ctx) {
           const limit = typeof maxItems === 'number' ? maxItems : 500;
           const entries = await fs.readdir(abs, { withFileTypes: true });
 
-          return entries.slice(0, limit).map((e) => {
-            const child = path.join(abs, e.name);
-            return {
-              name: e.name,
-              path: norm(path.relative(base, child)),
-              type: e.isDirectory() ? 'dir' : e.isFile() ? 'file' : 'other',
-            };
+          // Format as text list instead of returning objects
+          const items = entries.slice(0, limit).map((e) => {
+            const type = e.isDirectory() ? '[DIR]' : e.isFile() ? '[FILE]' : '[OTHER]';
+            return `${type} ${e.name}`;
           });
+
+          return `📁 Directory: ${abs}\n\nTotal: ${entries.length} items (showing ${items.length})\n\n${items.join('\n')}`;
         },
       }),
 
       fs_stat: tool({
-        description: 'Get file metadata.',
+        description: 'Get file metadata. Returns formatted text.',
         args: { path: tool.schema.string() },
         async execute({ path: p }, tctx) {
           mustEnable();
           const base = baseDirFrom(tctx);
           const abs = assertInBase(resolvePath(p, base), base);
           assertNotGitDir(abs);
-          return safeStat(abs);
+          
+          const st = await safeStat(abs);
+          
+          // Format as text instead of returning object
+          return `📄 File: ${abs}
+  
+Type: ${st.isFile ? 'File' : st.isDir ? 'Directory' : st.isSymlink ? 'Symlink' : 'Other'}
+Size: ${st.size} bytes
+Modified: ${new Date(st.mtimeMs).toISOString()}`;
         },
       }),
     },
   };
 }
+
 
 ```
 
