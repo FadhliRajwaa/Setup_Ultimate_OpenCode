@@ -1,626 +1,369 @@
-# 📘 Panduan Setup OpenCode + Superpowers + Antigravity
+# 📘 Panduan Setup OpenCode + Antigravity + Superpowers
 
-Panduan lengkap instalasi dan konfigurasi OpenCode dengan Superpowers skills dan koneksi ke Antigravity untuk akses model AI gratis.
+Panduan simple untuk instalasi OpenCode dengan akses ke model AI gratis (Gemini, Claude, GPT).
 
----
-
-## 📋 Daftar Isi
-
-1. [Prasyarat](#1-prasyarat)
-2. [Instalasi OpenCode](#2-instalasi-opencode)
-3. [Konfigurasi Antigravity](#3-konfigurasi-antigravity)
-4. [Setup Plugin Superpowers](#4-setup-plugin-superpowers)
-5. [Konfigurasi Plugin Tambahan](#5-konfigurasi-plugin-tambahan)
-6. [Konfigurasi MCP Servers](#6-konfigurasi-mcp-servers)
-7. [File Konfigurasi Lengkap](#7-file-konfigurasi-lengkap)
-8. [Troubleshooting](#8-troubleshooting)
+> **Terakhir diperbarui:** 24 Desember 2025
 
 ---
 
-## 1. Prasyarat
+## Step 1: Install OpenCode
 
-### Software yang Dibutuhkan:
+Pilih salah satu:
 
-- **Node.js** v18+ (https://nodejs.org/)
-- **Bun** (https://bun.sh/) - digunakan oleh OpenCode secara internal
-- **Git** (https://git-scm.com/)
-- **Browser** - untuk autentikasi OAuth
-
-### Akun yang Dibutuhkan:
-
-- **Google Account** - untuk autentikasi Antigravity
-
----
-
-## 2. Instalasi OpenCode
-
-### Langkah 1: Install OpenCode via Bun
-
-```powershell
+```bash
+# Menggunakan Bun (recommended)
 bun add -g opencode-ai
+
+# Menggunakan NPM
+npm install -g opencode-ai
 ```
 
-### Langkah 2: Verifikasi Instalasi
+Verifikasi:
 
-```powershell
+```bash
 opencode --version
 ```
 
 ---
 
-## 3. Konfigurasi Antigravity
+## Step 2: Buat File Konfigurasi
 
-Antigravity adalah layanan yang menyediakan akses gratis ke model AI seperti Gemini 3 Pro, Claude Sonnet/Opus, dll.
+### 2.1 Buat folder dan file
 
-### Langkah 1: Buat File Konfigurasi
+**Windows:**
 
-Buat file `opencode.json` di lokasi:
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\opencode\plugin"
+notepad "$env:USERPROFILE\.config\opencode\opencode.json"
+```
 
-- **Windows:** `C:\Users\<username>\.config\opencode\opencode.json`
-- **macOS/Linux:** `~/.config/opencode/opencode.json`
+**Linux/macOS:**
 
-### Langkah 2: Tambahkan Plugin Antigravity Auth
+```bash
+mkdir -p ~/.config/opencode/plugin
+nano ~/.config/opencode/opencode.json
+```
 
-Gunakan plugin **shekohex** (`opencode-google-antigravity-auth`) yang memiliki fitur lengkap:
+### 2.2 Copy-paste konfigurasi berikut ke `opencode.json`:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
-    "opencode-google-antigravity-auth"
-  ]
-}
-```
-
-### Langkah 3: Autentikasi dengan Google
-
-```powershell
-opencode auth login
-```
-
-1. Pilih **Google** sebagai provider
-2. Pilih **OAuth with Google (Antigravity)**
-3. Browser akan terbuka untuk login Google
-4. Setelah login, kembali ke terminal
-
-### Langkah 4: Definisikan Model Antigravity
-
-> **PENTING:** Konfigurasi model harus mengikuti format resmi dari [shekohex/opencode-google-antigravity-auth](https://github.com/shekohex/opencode-google-antigravity-auth).
->
-> Model Claude menggunakan prefix `gemini-claude-*` dan suffix level thinking (`-high`, `-medium`, `-low`).
-
-Tambahkan model Antigravity yang tersedia ke konfigurasi:
-
-```json
+    "opencode-antigravity-auth@1.2.3",
+    "opencode-openai-codex-auth@4.2.0",
+    "@nick-vi/opencode-type-inject@1.3.1",
+    "@franlol/opencode-md-table-formatter@0.0.3",
+    "@tarquinen/opencode-dcp@latest"
+  ],
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp", "--api-key", "YOUR-CONTEXT7-API-KEY"],
+      "enabled": true
+    },
+    "shadcn": {
+      "type": "local",
+      "command": ["npx", "-y", "shadcn", "mcp"],
+      "enabled": true
+    },
+    "grep_app": {
+      "type": "remote",
+      "url": "https://mcp.grep.app"
+    },
+    "exa_search": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer YOUR-EXA-API-KEY"
+      }
+    },
+    "zai-mcp-server": {
+      "type": "local",
+      "command": ["bunx", "@z_ai/mcp-server"],
+      "enabled": true,
+      "environment": {
+        "Z_AI_API_KEY": "YOUR-ZAI-API-KEY",
+        "Z_AI_MODE": "ZAI"
+      }
+    },
+    "web-search-prime": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR-ZAI-API-KEY"
+      }
+    },
+    "web-reader": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR-ZAI-API-KEY"
+      }
+    }
+  },
   "provider": {
     "google": {
-      "npm": "@ai-sdk/google",
       "models": {
-        "gemini-3-pro-preview": {
-          "id": "gemini-3-pro-preview",
-          "name": "Gemini 3 Pro Preview",
-          "reasoning": true,
-          "limit": { "context": 1000000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "video", "audio", "pdf"],
-            "output": ["text"]
-          }
-        },
         "gemini-3-pro-high": {
-          "id": "gemini-3-pro-preview",
-          "name": "Gemini 3 Pro (High Thinking)",
-          "options": {
-            "thinkingConfig": {
-              "thinkingLevel": "high",
-              "includeThoughts": true
-            }
-          }
-        },
-        "gemini-3-pro-medium": {
-          "id": "gemini-3-pro-preview",
-          "name": "Gemini 3 Pro (Medium Thinking)",
-          "options": {
-            "thinkingConfig": {
-              "thinkingLevel": "medium",
-              "includeThoughts": true
-            }
-          }
+          "name": "Gemini 3 Pro High (Antigravity)",
+          "limit": { "context": 1048576, "output": 65535 },
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
         },
         "gemini-3-pro-low": {
-          "id": "gemini-3-pro-preview",
-          "name": "Gemini 3 Pro (Low Thinking)",
-          "options": {
-            "thinkingConfig": {
-              "thinkingLevel": "low",
-              "includeThoughts": true
-            }
-          }
+          "name": "Gemini 3 Pro Low (Antigravity)",
+          "limit": { "context": 1048576, "output": 65535 },
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
         },
         "gemini-3-flash": {
-          "id": "gemini-3-flash",
-          "name": "Gemini 3 Flash",
-          "reasoning": true,
+          "name": "Gemini 3 Flash (Antigravity)",
           "limit": { "context": 1048576, "output": 65536 },
-          "modalities": {
-            "input": ["text", "image", "video", "audio", "pdf"],
-            "output": ["text"]
-          }
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
         },
-        "gemini-3-flash-high": {
-          "id": "gemini-3-flash",
-          "name": "Gemini 3 Flash (High Thinking)",
-          "options": {
-            "thinkingConfig": {
-              "thinkingLevel": "high",
-              "includeThoughts": true
-            }
-          }
-        },
-        "gemini-2.5-flash": {
-          "id": "gemini-2.5-flash",
-          "name": "Gemini 2.5 Flash",
-          "reasoning": true,
-          "limit": { "context": 1048576, "output": 65536 },
-          "modalities": {
-            "input": ["text", "image", "audio", "video", "pdf"],
-            "output": ["text"]
-          }
-        },
-        "gemini-claude-sonnet-4-5": {
-          "id": "gemini-claude-sonnet-4-5",
-          "name": "Claude Sonnet 4.5",
+        "claude-sonnet-4-5": {
+          "name": "Claude Sonnet 4.5 (Antigravity)",
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          }
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
         },
-        "gemini-claude-sonnet-4-5-thinking-high": {
-          "id": "gemini-claude-sonnet-4-5-thinking",
-          "name": "Claude Sonnet 4.5 (High Thinking)",
-          "reasoning": true,
+        "claude-sonnet-4-5-thinking": {
+          "name": "Claude Sonnet 4.5 Thinking (Antigravity)",
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          },
-          "options": {
-            "thinkingConfig": {
-              "thinkingBudget": 32000,
-              "includeThoughts": true
-            }
-          }
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
         },
-        "gemini-claude-sonnet-4-5-thinking-medium": {
-          "id": "gemini-claude-sonnet-4-5-thinking",
-          "name": "Claude Sonnet 4.5 (Medium Thinking)",
-          "reasoning": true,
+        "claude-opus-4-5-thinking": {
+          "name": "Claude Opus 4.5 Thinking (Antigravity)",
           "limit": { "context": 200000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          },
-          "options": {
-            "thinkingConfig": {
-              "thinkingBudget": 16000,
-              "includeThoughts": true
-            }
-          }
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
         },
-        "gemini-claude-opus-4-5-thinking-high": {
-          "id": "gemini-claude-opus-4-5-thinking",
-          "name": "Claude Opus 4.5 (High Thinking)",
-          "reasoning": true,
-          "limit": { "context": 200000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          },
-          "options": {
-            "thinkingConfig": {
-              "thinkingBudget": 32000,
-              "includeThoughts": true
-            }
-          }
+        "gpt-oss-120b-medium": {
+          "name": "GPT-OSS 120B Medium (Antigravity)",
+          "limit": { "context": 131072, "output": 32768 },
+          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
+        }
+      }
+    },
+    "openai": {
+      "options": {
+        "reasoningEffort": "medium",
+        "reasoningSummary": "auto",
+        "textVerbosity": "medium",
+        "include": ["reasoning.encrypted_content"],
+        "store": false
+      },
+      "models": {
+        "gpt-5.2-none": {
+          "name": "GPT 5.2 None (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "none", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
         },
-        "gemini-claude-opus-4-5-thinking-medium": {
-          "id": "gemini-claude-opus-4-5-thinking",
-          "name": "Claude Opus 4.5 (Medium Thinking)",
-          "reasoning": true,
-          "limit": { "context": 200000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          },
-          "options": {
-            "thinkingConfig": {
-              "thinkingBudget": 16000,
-              "includeThoughts": true
-            }
-          }
+        "gpt-5.2-low": {
+          "name": "GPT 5.2 Low (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "low", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
         },
-        "gemini-claude-opus-4-5-thinking-low": {
-          "id": "gemini-claude-opus-4-5-thinking",
-          "name": "Claude Opus 4.5 (Low Thinking)",
-          "reasoning": true,
-          "limit": { "context": 200000, "output": 64000 },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          },
-          "options": {
-            "thinkingConfig": {
-              "thinkingBudget": 4000,
-              "includeThoughts": true
-            }
-          }
+        "gpt-5.2-medium": {
+          "name": "GPT 5.2 Medium (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "medium", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.2-high": {
+          "name": "GPT 5.2 High (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "high", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.2-xhigh": {
+          "name": "GPT 5.2 Extra High (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "xhigh", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.2-codex-low": {
+          "name": "GPT 5.2 Codex Low (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "low", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.2-codex-medium": {
+          "name": "GPT 5.2 Codex Medium (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "medium", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.2-codex-high": {
+          "name": "GPT 5.2 Codex High (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "high", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.2-codex-xhigh": {
+          "name": "GPT 5.2 Codex Extra High (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "xhigh", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-codex-max-low": {
+          "name": "GPT 5.1 Codex Max Low (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "low", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-codex-max-medium": {
+          "name": "GPT 5.1 Codex Max Medium (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "medium", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-codex-max-high": {
+          "name": "GPT 5.1 Codex Max High (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "high", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-codex-max-xhigh": {
+          "name": "GPT 5.1 Codex Max Extra High (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "xhigh", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-codex-low": {
+          "name": "GPT 5.1 Codex Low (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "low", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-codex-medium": {
+          "name": "GPT 5.1 Codex Medium (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "medium", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-codex-high": {
+          "name": "GPT 5.1 Codex High (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "high", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-codex-mini-medium": {
+          "name": "GPT 5.1 Codex Mini Medium (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "medium", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-codex-mini-high": {
+          "name": "GPT 5.1 Codex Mini High (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "high", "reasoningSummary": "detailed", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-none": {
+          "name": "GPT 5.1 None (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "none", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-low": {
+          "name": "GPT 5.1 Low (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "low", "reasoningSummary": "auto", "textVerbosity": "low", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-medium": {
+          "name": "GPT 5.1 Medium (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "medium", "reasoningSummary": "auto", "textVerbosity": "medium", "include": ["reasoning.encrypted_content"], "store": false }
+        },
+        "gpt-5.1-high": {
+          "name": "GPT 5.1 High (OAuth)",
+          "limit": { "context": 272000, "output": 128000 },
+          "modalities": { "input": ["text", "image"], "output": ["text"] },
+          "options": { "reasoningEffort": "high", "reasoningSummary": "detailed", "textVerbosity": "high", "include": ["reasoning.encrypted_content"], "store": false }
         }
       }
     }
   },
-```
-
-**Model yang Tersedia:**
-
-| Model | Tipe | Catatan |
-|-------|------|---------|
-| `gemini-3-pro-preview` | Gemini | Base model tanpa thinking |
-| `gemini-3-pro-high/medium/low` | Gemini | Dengan thinking level |
-| `gemini-3-flash` | Gemini | Fast model |
-| `gemini-2.5-flash` | Gemini | Legacy stable |
-| `gemini-claude-sonnet-4-5` | Claude | Tanpa thinking |
-| `gemini-claude-sonnet-4-5-thinking-high` | Claude | Dengan thinking budget 32K |
-| `gemini-claude-opus-4-5-thinking-high/medium` | Claude | Opus dengan thinking |
-
----
-
-
-## 4. Setup Plugin Superpowers
-
-Superpowers adalah plugin yang menyediakan skills/workflows untuk meningkatkan produktivitas.
-
-> **Repository Resmi:** https://github.com/obra/superpowers
->
-> **Dokumentasi:** https://github.com/obra/superpowers/blob/main/docs/README.opencode.md
-
-> ⚠️ **PERINGATAN ANTIGRAVITY:** Plugin asli memiliki bug yang menyebabkan model default berubah ke `gemini-3-pro-preview`. Panduan ini menggunakan **versi modifikasi** yang memperbaiki bug tersebut.
-
----
-
-### Langkah 1: Clone Repository Superpowers
-
-**Windows (PowerShell):**
-```powershell
-git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\.config\opencode\superpowers"
-```
-
-**Linux/macOS:**
-```bash
-git clone https://github.com/obra/superpowers.git ~/.config/opencode/superpowers
-```
-
----
-
-### Langkah 2: Buat Folder Plugin
-
-**Windows (PowerShell):**
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\opencode\plugin"
-```
-
-**Linux/macOS:**
-```bash
-mkdir -p ~/.config/opencode/plugin
-```
-
----
-
-### Langkah 3: Buat File Plugin yang Sudah Diperbaiki
-
-> ⚠️ **JANGAN GUNAKAN SYMLINK** ke file asli karena memiliki 2 bug:
-> 1. Import path relatif tidak berfungsi dengan symlink
-> 2. Inject pada `session.created` menyebabkan model default berubah
-
-Buat file baru dengan kode yang sudah diperbaiki:
-
-**Windows:**
-```powershell
-notepad "$env:USERPROFILE\.config\opencode\plugin\superpowers.js"
-```
-
-**Linux/macOS:**
-```bash
-nano ~/.config/opencode/plugin/superpowers.js
-```
-
-**PASTE KODE BERIKUT (VERSI 1.1.0 - BUG FIXED):**
-
-```javascript
-/**
- * Superpowers plugin for OpenCode.ai
- * VERSI: 1.1.0 (FIXED - Antigravity Compatible)
- * 
- * BUG YANG DIPERBAIKI:
- * 1. Import path relatif → absolute path dengan os.homedir()
- * 2. session.created injection → DINONAKTIFKAN (menyebabkan bug model default)
- * 
- * FITUR BARU:
- * - Tool inject_superpowers untuk manual injection jika diperlukan
- */
-
-import path from 'path';
-import fs from 'fs';
-import os from 'os';
-import { fileURLToPath } from 'url';
-import { tool } from '@opencode-ai/plugin/tool';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const homeDir = os.homedir();
-
-const superpowersDir = path.join(homeDir, '.config', 'opencode', 'superpowers');
-const skillsCoreModule = path.join(superpowersDir, 'lib', 'skills-core.js');
-
-let skillsCore = null;
-const loadSkillsCore = async () => {
-  if (!skillsCore) {
-    try {
-      skillsCore = await import(skillsCoreModule);
-    } catch (err) {
-      console.error('Failed to load skills-core.js:', err.message);
-      skillsCore = {
-        resolveSkillPath: () => null,
-        stripFrontmatter: (content) => content,
-        extractFrontmatter: () => ({}),
-        findSkillsInDir: () => []
-      };
-    }
+  "theme": "lucent-orng",
+  "tools": {
+    "read": true,
+    "edit": true,
+    "write": true,
+    "glob": true,
+    "list": true,
+    "grep": true
+  },
+  "permission": {
+    "edit": "allow",
+    "external_directory": "allow",
+    "bash": "allow",
+    "webfetch": "allow",
+    "doom_loop": "allow"
   }
-  return skillsCore;
-};
-
-export const SuperpowersPlugin = async ({ client, directory }) => {
-  const core = await loadSkillsCore();
-  
-  const projectSkillsDir = path.join(directory, '.opencode', 'skills');
-  const superpowersSkillsDir = path.join(superpowersDir, 'skills');
-  const personalSkillsDir = path.join(homeDir, '.config', 'opencode', 'skills');
-
-  const getBootstrapContent = (compact = false) => {
-    const usingSuperpowersPath = core.resolveSkillPath('using-superpowers', superpowersSkillsDir, personalSkillsDir);
-    if (!usingSuperpowersPath) return null;
-
-    const fullContent = fs.readFileSync(usingSuperpowersPath.skillFile, 'utf8');
-    const content = core.stripFrontmatter(fullContent);
-
-    const toolMapping = compact
-      ? `**Tool Mapping:** TodoWrite->update_plan, Task->@mention, Skill->use_skill
-**Skills naming:** project: > personal > superpowers:`
-      : `**Tool Mapping for OpenCode:**
-- \`TodoWrite\` → \`update_plan\`
-- \`Task\` with subagents → OpenCode's @mention system
-- \`Skill\` tool → \`use_skill\`
-- File operations → Native OpenCode tools
-
-**Skills priority:** project: > personal > superpowers:`;
-
-    return `<EXTREMELY_IMPORTANT>
-You have superpowers.
-${content}
-${toolMapping}
-</EXTREMELY_IMPORTANT>`;
-  };
-
-  const injectBootstrap = async (sessionID, compact = false) => {
-    const bootstrapContent = getBootstrapContent(compact);
-    if (!bootstrapContent) return false;
-    try {
-      await client.session.prompt({
-        path: { id: sessionID },
-        body: { noReply: true, parts: [{ type: "text", text: bootstrapContent, synthetic: true }] }
-      });
-      return true;
-    } catch (err) { return false; }
-  };
-
-  return {
-    tool: {
-      use_skill: tool({
-        description: 'Load a skill to guide your work.',
-        args: { skill_name: tool.schema.string().describe('Skill name (e.g., "superpowers:brainstorming")') },
-        execute: async (args, context) => {
-          const { skill_name } = args;
-          const forceProject = skill_name.startsWith('project:');
-          const actualSkillName = forceProject ? skill_name.replace(/^project:/, '') : skill_name;
-          let resolved = null;
-
-          if (forceProject || !skill_name.startsWith('superpowers:')) {
-            const projectSkillFile = path.join(projectSkillsDir, actualSkillName, 'SKILL.md');
-            if (fs.existsSync(projectSkillFile)) {
-              resolved = { skillFile: projectSkillFile, sourceType: 'project', skillPath: actualSkillName };
-            }
-          }
-          if (!resolved && !forceProject) {
-            resolved = core.resolveSkillPath(skill_name, superpowersSkillsDir, personalSkillsDir);
-          }
-          if (!resolved) return `Error: Skill "${skill_name}" not found. Run find_skills.`;
-
-          const fullContent = fs.readFileSync(resolved.skillFile, 'utf8');
-          const { name, description } = core.extractFrontmatter(resolved.skillFile);
-          const content = core.stripFrontmatter(fullContent);
-          const skillHeader = `# ${name || skill_name}\n# ${description || ''}\n# Directory: ${path.dirname(resolved.skillFile)}`;
-
-          try {
-            await client.session.prompt({
-              path: { id: context.sessionID },
-              body: { noReply: true, parts: [
-                { type: "text", text: `Loading skill: ${name || skill_name}`, synthetic: true },
-                { type: "text", text: `${skillHeader}\n\n${content}`, synthetic: true }
-              ]}
-            });
-          } catch (err) { return `${skillHeader}\n\n${content}`; }
-          return `Launching skill: ${name || skill_name}`;
-        }
-      }),
-      find_skills: tool({
-        description: 'List all available skills.',
-        args: {},
-        execute: async () => {
-          const projectSkills = core.findSkillsInDir(projectSkillsDir, 'project', 3);
-          const personalSkills = core.findSkillsInDir(personalSkillsDir, 'personal', 3);
-          const superpowersSkills = core.findSkillsInDir(superpowersSkillsDir, 'superpowers', 3);
-          const allSkills = [...projectSkills, ...personalSkills, ...superpowersSkills];
-          if (allSkills.length === 0) return 'No skills found.';
-          let output = 'Available skills:\n\n';
-          for (const skill of allSkills) {
-            const ns = skill.sourceType === 'project' ? 'project:' : skill.sourceType === 'personal' ? '' : 'superpowers:';
-            output += `${ns}${skill.name || path.basename(skill.path)}\n  ${skill.description || ''}\n  ${skill.path}\n\n`;
-          }
-          return output;
-        }
-      }),
-      inject_superpowers: tool({
-        description: 'Manually inject superpowers context. Use this if you want superpowers guidance.',
-        args: {},
-        execute: async (args, context) => {
-          const success = await injectBootstrap(context.sessionID, false);
-          return success ? 'Superpowers context injected.' : 'Failed to inject.';
-        }
-      })
-    },
-    event: async ({ event }) => {
-      const sessionID = event.properties?.info?.id || event.properties?.sessionID || event.session?.id;
-      // DINONAKTIFKAN: session.created injection (menyebabkan bug model di Antigravity)
-      // if (event.type === 'session.created' && sessionID) await injectBootstrap(sessionID, false);
-      if (event.type === 'session.compacted' && sessionID) await injectBootstrap(sessionID, true);
-    }
-  };
-};
-```
-
----
-
-### Langkah 4: Verifikasi Instalasi
-
-**Windows:**
-```powershell
-# Cek skills
-(Get-ChildItem -Directory "$env:USERPROFILE\.config\opencode\superpowers\skills").Count
-# Output: 14 atau lebih
-
-# Cek plugin file
-Test-Path "$env:USERPROFILE\.config\opencode\plugin\superpowers.js"
-# Output: True
-```
-
-**Linux/macOS:**
-```bash
-ls ~/.config/opencode/superpowers/skills | wc -l
-# Output: 14 atau lebih
-
-ls ~/.config/opencode/plugin/superpowers.js
-# Output: path ke file
-```
-
----
-
-### Langkah 5: Test di OpenCode
-
-```powershell
-opencode
-```
-
-**Test tools:**
-```
-find_skills          # List semua skills
-inject_superpowers   # Inject context superpowers (opsional)
-use_skill superpowers:brainstorming  # Load skill tertentu
-```
-
----
-
-### Reinstall Superpowers (Jika Ada Masalah)
-
-**Windows (PowerShell):**
-```powershell
-# 1. Hapus semua file superpowers
-Remove-Item -Recurse -Force "$env:USERPROFILE\.config\opencode\superpowers" -ErrorAction SilentlyContinue
-Remove-Item -Force "$env:USERPROFILE\.config\opencode\plugin\superpowers.js" -ErrorAction SilentlyContinue
-
-# 2. Clone ulang repository
-git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\.config\opencode\superpowers"
-
-# 3. Buat file plugin baru (copy-paste kode v1.1.0 di atas)
-notepad "$env:USERPROFILE\.config\opencode\plugin\superpowers.js"
-
-# 4. Restart OpenCode
-```
-
-**Linux/macOS:**
-```bash
-# 1. Hapus semua file superpowers
-rm -rf ~/.config/opencode/superpowers
-rm -f ~/.config/opencode/plugin/superpowers.js
-
-# 2. Clone ulang repository
-git clone https://github.com/obra/superpowers.git ~/.config/opencode/superpowers
-
-# 3. Buat file plugin baru (copy-paste kode v1.1.0 di atas)
-nano ~/.config/opencode/plugin/superpowers.js
-
-# 4. Restart OpenCode
-```
-
----
-
-### Update Superpowers
-
-```powershell
-# Windows
-cd "$env:USERPROFILE\.config\opencode\superpowers"
-git pull
-```
-
-```bash
-# Linux/macOS
-cd ~/.config/opencode/superpowers
-git pull
-```
-
-> ⚠️ **PENTING:** Setelah `git pull`, file plugin di `~/.config/opencode/plugin/superpowers.js` **TIDAK perlu diubah** karena sudah menggunakan versi modifikasi terpisah dari repository.
-
----
-
-
-## 5. Konfigurasi Plugin Tambahan
-
-### Plugin yang Direkomendasikan:
-
-| Plugin                                   | Fungsi                                    | Kompatibilitas Windows |
-| ---------------------------------------- | ----------------------------------------- | ---------------------- |
-| `opencode-google-antigravity-auth`     | Autentikasi Antigravity + Google Search   | ✅                     |
-| `@nick-vi/opencode-type-inject`        | Type injection                            | ✅                     |
-| `@franlol/opencode-md-table-formatter` | Format tabel markdown                     | ✅                     |
-| `@tarquinen/opencode-dcp@latest`       | Dynamic Context Pruning (optimize tokens) | ✅                     |
-| `opencode-zellij-namer`                | Rename Zellij sessions                    | ❌ (Linux/macOS only)  |
-
-### Menambahkan Plugin:
-
-Edit `opencode.json`:
-
-```json
-{
-  "plugin": [
-    "opencode-google-antigravity-auth",
-    "@nick-vi/opencode-type-inject@1.3.1",
-    "@franlol/opencode-md-table-formatter@0.0.3",
-    "@tarquinen/opencode-dcp@latest"
-  ]
 }
 ```
 
-### Konfigurasi DCP (Dynamic Context Pruning):
+> **PENTING:** Ganti semua `YOUR-...-API-KEY` dengan API key Anda masing-masing. MCP servers bersifat **opsional** - hapus yang tidak dibutuhkan.
 
-Buat file `~/.config/opencode/dcp.jsonc`:
+---
+
+## Step 3: Setup Antigravity (Google Cloud)
+
+Antigravity memerlukan Google Cloud Project untuk autentikasi.
+
+### 3.1 Buat Project di Google Cloud Console
+
+1. Buka https://console.cloud.google.com/
+2. Klik **Select a project** → **New Project**
+3. Beri nama project (misal: `opencode-antigravity`)
+4. Klik **Create**
+5. **Copy Project ID** (akan dibutuhkan nanti)
+
+### 3.2 Enable Gemini for Google Cloud API
+
+1. Di Cloud Console, buka **APIs & Services** → **Library**
+2. Search **"Gemini for Google Cloud"**
+3. Klik pada hasil pencarian
+4. Klik **Enable**
+
+### 3.3 Login di OpenCode
+
+```bash
+opencode auth login
+```
+
+1. Pilih **Google**
+2. Pilih **OAuth with Google (Antigravity)**
+3. **Paste Project ID** yang sudah di-copy
+4. Browser akan terbuka → Login dengan akun Google Cloud yang sama
+5. Selesai!
+
+> ⚠️ **PENTING:** Jangan langsung test dengan `opencode`. Lanjut ke **Step 4** dulu untuk buat file `dcp.jsonc`.
+
+---
+
+## Step 4: Buat File DCP Config
+
+DCP (Dynamic Context Pruning) mengoptimalkan penggunaan tokens.
+
+Buat file `dcp.jsonc`:
+
+**Windows:**
+
+```powershell
+notepad "$env:USERPROFILE\.config\opencode\dcp.jsonc"
+```
+
+**Linux/macOS:**
+
+```bash
+nano ~/.config/opencode/dcp.jsonc
+```
+
+Copy-paste:
 
 ```jsonc
 {
@@ -658,381 +401,573 @@ Buat file `~/.config/opencode/dcp.jsonc`:
 
 ---
 
-## 6. Konfigurasi MCP Servers
+## Step 5: Test Antigravity
 
-MCP (Model Context Protocol) adalah standar untuk menghubungkan AI dengan tools eksternal dan sumber data.
+```bash
+opencode
+```
 
-### MCP yang Tersedia:
+1. Tekan `Tab` → `switch agent`
+2. Pilih `google/claude-opus-4-5-thinking` atau `google/claude-sonnet-4-5-thinking`
+3. Ketik prompt test: `hello, who are you?`
 
-| MCP | Tipe | Fungsi |
-|-----|------|--------|
-| **Context7** | Local | Dokumentasi library/framework real-time |
-| **Grep App** | Remote | Search code di GitHub repositories |
-| **Exa Search** | Remote | AI-powered web search |
-| **Shadcn** | Local | Component library untuk React |
+✅ **Jika tidak ada error** = Setup OpenCode Model Antigravity berhasil!
 
 ---
 
-### 6.1 Context7 (Library Documentation)
+## Step 6: Install Superpowers (Skills System)
 
-**Fungsi:** Mengakses dokumentasi library/framework secara real-time.
+> ⚠️ **Step paling krusial** - Jangan gunakan symlink!
 
-**Langkah Instalasi:**
+### 6.1 Clone Repository Superpowers
 
-1. **Daftar di Upstash Context7:**
-   - Buka https://context7.io/
-   - Login dengan GitHub/Google
-   - Dapatkan API Key
-
-2. **Tambahkan ke opencode.json:**
-```json
-{
-  "mcp": {
-    "context7": {
-      "type": "local",
-      "command": ["npx", "-y", "@upstash/context7-mcp", "--api-key", "YOUR_API_KEY"],
-      "enabled": true
-    }
-  }
-}
-```
-
-3. **Ganti `YOUR_API_KEY`** dengan API key dari Context7.
-
-**Cara Penggunaan:**
-Di OpenCode, ketik:
-```
-use context7 to get documentation for React hooks
-```
-
----
-
-### 6.2 Grep App (Code Search)
-
-**Fungsi:** Mencari code snippets di seluruh GitHub repositories.
-
-**Langkah Instalasi:**
-
-1. **Tidak perlu API key** - Gratis dan langsung bisa digunakan.
-
-2. **Tambahkan ke opencode.json:**
-```json
-{
-  "mcp": {
-    "grep_app": {
-      "type": "remote",
-      "url": "https://mcp.grep.app"
-    }
-  }
-}
-```
-
-**Cara Penggunaan:**
-Di OpenCode, ketik:
-```
-search for "useEffect cleanup" examples in React projects
-```
-
----
-
-### 6.3 Exa Search (AI Web Search)
-
-**Fungsi:** Web search dengan AI yang mengembalikan hasil relevan.
-
-**Langkah Instalasi:**
-
-1. **Daftar di Exa:**
-   - Buka https://exa.ai/
-   - Buat akun dan dapatkan API Key
-
-2. **Tambahkan ke opencode.json:**
-```json
-{
-  "mcp": {
-    "exa_search": {
-      "type": "remote",
-      "url": "https://mcp.exa.ai",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer YOUR_EXA_API_KEY"
-      }
-    }
-  }
-}
-```
-
-3. **Ganti `YOUR_EXA_API_KEY`** dengan API key dari Exa.
-
-**Cara Penggunaan:**
-Di OpenCode, ketik:
-```
-search for latest Next.js 15 features
-```
-
----
-
-### 6.4 Shadcn UI (Component Library)
-
-**Fungsi:** Akses component library Shadcn untuk React/Next.js.
-
-**Langkah Instalasi:**
-
-1. **Tidak perlu API key** - Langsung bisa digunakan.
-
-2. **Tambahkan ke opencode.json:**
-```json
-{
-  "mcp": {
-    "shadcn": {
-      "type": "local",
-      "command": ["npx", "-y", "shadcn", "mcp"],
-      "enabled": true
-    }
-  }
-}
-```
-
-**Cara Penggunaan:**
-Di OpenCode, ketik:
-```
-add shadcn button component to my project
-```
-
----
-
-### Konfigurasi MCP Lengkap
-
-```json
-{
-  "mcp": {
-    "context7": {
-      "type": "local",
-      "command": ["npx", "-y", "@upstash/context7-mcp", "--api-key", "YOUR_CONTEXT7_API_KEY"],
-      "enabled": true
-    },
-    "grep_app": {
-      "type": "remote",
-      "url": "https://mcp.grep.app"
-    },
-    "exa_search": {
-      "type": "remote",
-      "url": "https://mcp.exa.ai",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer YOUR_EXA_API_KEY"
-      }
-    },
-    "shadcn": {
-      "type": "local",
-      "command": ["npx", "-y", "shadcn", "mcp"],
-      "enabled": true
-    }
-  }
-}
-```
-
----
-
-## 7. File Konfigurasi Lengkap
-
-### `~/.config/opencode/opencode.json`
-
-
-> **Referensi:** [shekohex/opencode-google-antigravity-auth](https://github.com/shekohex/opencode-google-antigravity-auth)
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "opencode-google-antigravity-auth",
-    "@nick-vi/opencode-type-inject@1.3.1",
-    "@franlol/opencode-md-table-formatter@0.0.3",
-    "@tarquinen/opencode-dcp@latest"
-  ],
-  "mcp": {
-    "context7": {
-      "type": "local",
-      "command": ["npx", "-y", "@upstash/context7-mcp", "--api-key", "YOUR_API_KEY"],
-      "enabled": true
-    },
-    "shadcn": {
-      "type": "local",
-      "command": ["npx", "-y", "shadcn", "mcp"],
-      "enabled": true
-    }
-  },
-  "provider": {
-    "google": {
-      "npm": "@ai-sdk/google",
-      "models": {
-        "gemini-3-pro-preview": {
-          "id": "gemini-3-pro-preview",
-          "name": "Gemini 3 Pro Preview",
-          "reasoning": true,
-          "limit": { "context": 1000000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "video", "audio", "pdf"], "output": ["text"] }
-        },
-        "gemini-3-pro-high": {
-          "id": "gemini-3-pro-preview",
-          "name": "Gemini 3 Pro (High Thinking)",
-          "options": { "thinkingConfig": { "thinkingLevel": "high", "includeThoughts": true } }
-        },
-        "gemini-3-pro-medium": {
-          "id": "gemini-3-pro-preview",
-          "name": "Gemini 3 Pro (Medium Thinking)",
-          "options": { "thinkingConfig": { "thinkingLevel": "medium", "includeThoughts": true } }
-        },
-        "gemini-3-pro-low": {
-          "id": "gemini-3-pro-preview",
-          "name": "Gemini 3 Pro (Low Thinking)",
-          "options": { "thinkingConfig": { "thinkingLevel": "low", "includeThoughts": true } }
-        },
-        "gemini-3-flash": {
-          "id": "gemini-3-flash",
-          "name": "Gemini 3 Flash",
-          "reasoning": true,
-          "limit": { "context": 1048576, "output": 65536 },
-          "modalities": { "input": ["text", "image", "video", "audio", "pdf"], "output": ["text"] }
-        },
-        "gemini-3-flash-high": {
-          "id": "gemini-3-flash",
-          "name": "Gemini 3 Flash (High Thinking)",
-          "options": { "thinkingConfig": { "thinkingLevel": "high", "includeThoughts": true } }
-        },
-        "gemini-2.5-flash": {
-          "id": "gemini-2.5-flash",
-          "name": "Gemini 2.5 Flash",
-          "reasoning": true,
-          "limit": { "context": 1048576, "output": 65536 },
-          "modalities": { "input": ["text", "image", "audio", "video", "pdf"], "output": ["text"] }
-        },
-        "gemini-claude-sonnet-4-5": {
-          "id": "gemini-claude-sonnet-4-5",
-          "name": "Claude Sonnet 4.5",
-          "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] }
-        },
-        "gemini-claude-sonnet-4-5-thinking-high": {
-          "id": "gemini-claude-sonnet-4-5-thinking",
-          "name": "Claude Sonnet 4.5 (High Thinking)",
-          "reasoning": true,
-          "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
-          "options": { "thinkingConfig": { "thinkingBudget": 32000, "includeThoughts": true } }
-        },
-        "gemini-claude-opus-4-5-thinking-high": {
-          "id": "gemini-claude-opus-4-5-thinking",
-          "name": "Claude Opus 4.5 (High Thinking)",
-          "reasoning": true,
-          "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
-          "options": { "thinkingConfig": { "thinkingBudget": 32000, "includeThoughts": true } }
-        },
-        "gemini-claude-opus-4-5-thinking-medium": {
-          "id": "gemini-claude-opus-4-5-thinking",
-          "name": "Claude Opus 4.5 (Medium Thinking)",
-          "reasoning": true,
-          "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
-          "options": { "thinkingConfig": { "thinkingBudget": 16000, "includeThoughts": true } }
-        },
-        "gemini-claude-opus-4-5-thinking-low": {
-          "id": "gemini-claude-opus-4-5-thinking",
-          "name": "Claude Opus 4.5 (Low Thinking)",
-          "reasoning": true,
-          "limit": { "context": 200000, "output": 64000 },
-          "modalities": { "input": ["text", "image", "pdf"], "output": ["text"] },
-          "options": { "thinkingConfig": { "thinkingBudget": 4000, "includeThoughts": true } }
-        }
-      }
-    }
-  },
-  "theme": "lucent-orng",
-  "tools": {
-    "read": true,
-    "edit": true,
-    "write": true,
-    "glob": true,
-    "list": true,
-    "grep": true
-  },
-  "permission": {
-    "edit": "allow",
-    "external_directory": "allow",
-    "bash": "allow",
-    "webfetch": "allow",
-    "doom_loop": "allow"
-  }
-}
-```
-
----
-
-
-## 8. Troubleshooting
-
-### Error: "Requested entity was not found" (404)
-
-**Penyebab:** OpenCode mencoba menggunakan model yang tidak tersedia di Antigravity.
-
-**Solusi:** Pastikan ada konfigurasi `"model":` di `opencode.json`:
-
-```json
-"model": "google/gemini-3-pro-high"
-```
-
-### Error: EBUSY saat instalasi plugin
-
-**Penyebab:** Native binary conflicts di Windows.
-
-**Solusi:**
+**Windows:**
 
 ```powershell
-cd C:\Users\<username>\.cache\opencode
-Remove-Item -Recurse -Force node_modules, bun.lock
-bun install --ignore-scripts
-bun pm trust --all
+git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\.config\opencode\superpowers"
 ```
 
-### Error: "Configuration is invalid"
+**Linux/macOS:**
 
-**Penyebab:** Kesalahan sintaks JSON.
+```bash
+git clone https://github.com/obra/superpowers.git ~/.config/opencode/superpowers
+```
 
-**Solusi:** Gunakan JSON validator online untuk mengecek file `opencode.json`.
+### 6.2 Buat File Plugin
 
-### Plugin superpowers tidak berfungsi
+**Windows:**
 
-**Penyebab:** Path import yang salah.
+```powershell
+notepad "$env:USERPROFILE\.config\opencode\plugin\superpowers.js"
+```
 
-**Solusi:** Pastikan:
+**Linux/macOS:**
 
-1. Folder `superpowers/` ada di `~/.config/opencode/`
-2. File `lib/skills-core.js` ada
-3. Folder `skills/` berisi 14 skill folders
+```bash
+nano ~/.config/opencode/plugin/superpowers.js
+```
 
-### Cara melihat skills yang tersedia
+### 6.3 Copy-paste kode berikut (JANGAN gunakan symlink):
 
-Di OpenCode, ketik:
+```javascript
+/**
+ * Superpowers plugin for OpenCode.ai
+ * VERSI: 2.0.0 (AUTO-ACTIVE - Antigravity & Thinking Compatible)
+ * 
+ * PERUBAHAN DARI v1.1.0:
+ * - Auto-active: Superpowers context otomatis tersedia di tool descriptions
+ * - Tidak menggunakan client.session.prompt() (penyebab error thinking)
+ * - Tools mengembalikan content langsung sebagai output
+ * 
+ * KOMPATIBEL DENGAN:
+ * - Claude Opus/Sonnet Thinking models
+ * - Gemini models
+ * - OpenAI GPT models
+ */
+
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import { tool } from '@opencode-ai/plugin/tool';
+
+const homeDir = os.homedir();
+const superpowersDir = path.join(homeDir, '.config', 'opencode', 'superpowers');
+const skillsCoreModule = path.join(superpowersDir, 'lib', 'skills-core.js');
+
+let skillsCore = null;
+const loadSkillsCore = async () => {
+  if (!skillsCore) {
+    try {
+      skillsCore = await import(skillsCoreModule);
+    } catch (err) {
+      console.error('Failed to load skills-core.js:', err.message);
+      skillsCore = {
+        resolveSkillPath: () => null,
+        stripFrontmatter: (content) => content,
+        extractFrontmatter: () => ({}),
+        findSkillsInDir: () => []
+      };
+    }
+  }
+  return skillsCore;
+};
+
+// Pre-load superpowers context for tool descriptions
+let superpowersContext = null;
+const getSuperpowersContext = async () => {
+  if (superpowersContext) return superpowersContext;
+  
+  const core = await loadSkillsCore();
+  const superpowersSkillsDir = path.join(superpowersDir, 'skills');
+  const personalSkillsDir = path.join(homeDir, '.config', 'opencode', 'skills');
+  
+  const usingSuperpowersPath = core.resolveSkillPath('using-superpowers', superpowersSkillsDir, personalSkillsDir);
+  if (!usingSuperpowersPath) {
+    superpowersContext = '';
+    return superpowersContext;
+  }
+  
+  try {
+    const fullContent = fs.readFileSync(usingSuperpowersPath.skillFile, 'utf8');
+    superpowersContext = core.stripFrontmatter(fullContent);
+  } catch (err) {
+    superpowersContext = '';
+  }
+  
+  return superpowersContext;
+};
+
+// Initialize context on module load
+getSuperpowersContext();
+
+export const SuperpowersPlugin = async ({ client, directory }) => {
+  const core = await loadSkillsCore();
+  const context = await getSuperpowersContext();
+  
+  const projectSkillsDir = path.join(directory, '.opencode', 'skills');
+  const superpowersSkillsDir = path.join(superpowersDir, 'skills');
+  const personalSkillsDir = path.join(homeDir, '.config', 'opencode', 'skills');
+
+  // Build skills list for description
+  let skillsList = '';
+  try {
+    const projectSkills = core.findSkillsInDir(projectSkillsDir, 'project', 3);
+    const personalSkills = core.findSkillsInDir(personalSkillsDir, 'personal', 3);
+    const superpowersSkills = core.findSkillsInDir(superpowersSkillsDir, 'superpowers', 3);
+    const allSkills = [...projectSkills, ...personalSkills, ...superpowersSkills];
+  
+    skillsList = allSkills.slice(0, 10).map(s => {
+      const ns = s.sourceType === 'project' ? 'project:' : s.sourceType === 'personal' ? '' : 'superpowers:';
+      return `${ns}${s.name || path.basename(s.path)}`;
+    }).join(', ');
+  } catch (err) {
+    skillsList = 'brainstorming, project-kickoff, code-review, debugging, refactoring';
+  }
+
+  return {
+    tool: {
+      // Main skill loading tool with superpowers context embedded in description
+      use_skill: tool({
+        description: `Load a skill to guide your work. YOU HAVE SUPERPOWERS - specialized skills for various tasks.
+
+AVAILABLE SKILLS: ${skillsList || 'Run find_skills to see all'}
+
+USAGE: use_skill("superpowers:brainstorming") or use_skill("project:my-skill")
+
+TOOL MAPPING for OpenCode:
+- TodoWrite → update_plan
+- Task with subagents → @mention system
+- Skill tool → use_skill
+- File operations → Native OpenCode tools
+
+SKILLS PRIORITY: project: > personal > superpowers:`,
+        args: { 
+          skill_name: tool.schema.string().describe('Skill name with namespace (e.g., "superpowers:brainstorming", "project:my-skill")') 
+        },
+        execute: async (args) => {
+          const { skill_name } = args;
+          const forceProject = skill_name.startsWith('project:');
+          const actualSkillName = skill_name.replace(/^(project:|superpowers:|personal:)/, '');
+          let resolved = null;
+
+          // Check project skills first
+          if (forceProject || !skill_name.startsWith('superpowers:')) {
+            const projectSkillFile = path.join(projectSkillsDir, actualSkillName, 'SKILL.md');
+            if (fs.existsSync(projectSkillFile)) {
+              resolved = { skillFile: projectSkillFile, sourceType: 'project', skillPath: actualSkillName };
+            }
+          }
+        
+          // Then check superpowers/personal
+          if (!resolved && !forceProject) {
+            resolved = core.resolveSkillPath(skill_name, superpowersSkillsDir, personalSkillsDir);
+          }
+        
+          if (!resolved) {
+            return `❌ Skill "${skill_name}" not found.\n\nUse find_skills to see available skills.`;
+          }
+
+          try {
+            const fullContent = fs.readFileSync(resolved.skillFile, 'utf8');
+            const { name, description } = core.extractFrontmatter(resolved.skillFile);
+            const content = core.stripFrontmatter(fullContent);
+          
+            // Return content directly - no session.prompt injection
+            return `# 🎯 SKILL LOADED: ${name || skill_name}
+
+${description ? `**Description:** ${description}\n` : ''}
+**Source:** ${resolved.sourceType}
+**Path:** ${path.dirname(resolved.skillFile)}
+
+---
+
+${content}
+
+---
+✅ Follow the instructions above to complete this skill.`;
+          } catch (err) {
+            return `❌ Error loading skill: ${err.message}`;
+          }
+        }
+      }),
+
+      // Find skills tool
+      find_skills: tool({
+        description: 'List all available superpowers skills. Use this to discover what skills you can load with use_skill.',
+        args: {},
+        execute: async () => {
+          const projectSkills = core.findSkillsInDir(projectSkillsDir, 'project', 3);
+          const personalSkills = core.findSkillsInDir(personalSkillsDir, 'personal', 3);
+          const superpowersSkills = core.findSkillsInDir(superpowersSkillsDir, 'superpowers', 3);
+          const allSkills = [...projectSkills, ...personalSkills, ...superpowersSkills];
+        
+          if (allSkills.length === 0) {
+            return '❌ No skills found. Check if superpowers is installed at ~/.config/opencode/superpowers/';
+          }
+        
+          let output = `# 🦸 SUPERPOWERS SKILLS\n\n`;
+          output += `You have ${allSkills.length} skills available. Use \`use_skill("namespace:skill-name")\` to load one.\n\n`;
+        
+          // Group by source
+          const grouped = { project: [], personal: [], superpowers: [] };
+          for (const skill of allSkills) {
+            grouped[skill.sourceType]?.push(skill);
+          }
+        
+          if (grouped.project.length > 0) {
+            output += `## 📁 Project Skills\n`;
+            for (const skill of grouped.project) {
+              output += `- **project:${skill.name || path.basename(skill.path)}** - ${skill.description || 'No description'}\n`;
+            }
+            output += '\n';
+          }
+        
+          if (grouped.personal.length > 0) {
+            output += `## 👤 Personal Skills\n`;
+            for (const skill of grouped.personal) {
+              output += `- **${skill.name || path.basename(skill.path)}** - ${skill.description || 'No description'}\n`;
+            }
+            output += '\n';
+          }
+        
+          if (grouped.superpowers.length > 0) {
+            output += `## 🦸 Superpowers Skills\n`;
+            for (const skill of grouped.superpowers) {
+              output += `- **superpowers:${skill.name || path.basename(skill.path)}** - ${skill.description || 'No description'}\n`;
+            }
+            output += '\n';
+          }
+        
+          output += `---\n💡 **Tip:** Use \`use_skill("superpowers:brainstorming")\` to load a skill.`;
+        
+          return output;
+        }
+      }),
+
+      // Quick superpowers info
+      superpowers_info: tool({
+        description: 'Get quick info about your superpowers capabilities.',
+        args: {},
+        execute: async () => {
+          const projectSkills = core.findSkillsInDir(projectSkillsDir, 'project', 3);
+          const personalSkills = core.findSkillsInDir(personalSkillsDir, 'personal', 3);
+          const superpowersSkills = core.findSkillsInDir(superpowersSkillsDir, 'superpowers', 3);
+        
+          return `# 🦸 SUPERPOWERS ACTIVE
+
+You have superpowers! Here's what you can do:
+
+## Available Skills
+- **Project:** ${projectSkills.length} skills
+- **Personal:** ${personalSkills.length} skills  
+- **Superpowers:** ${superpowersSkills.length} skills
+
+## Quick Commands
+- \`find_skills\` - List all available skills
+- \`use_skill("superpowers:brainstorming")\` - Load a skill
+- \`use_skill("superpowers:code-review")\` - Code review skill
+- \`use_skill("superpowers:debugging")\` - Debugging skill
+
+## Tool Mapping
+| Claude Code | OpenCode |
+|-------------|----------|
+| TodoWrite | update_plan |
+| Task | @mention |
+| Skill | use_skill |
+
+🚀 Ready to use superpowers!`;
+        }
+      })
+    }
+    // NOTE: No event handlers - avoiding client.session.prompt() which causes thinking model errors
+  };
+};
+```
+
+### 6.4 Test Superpowers
+
+```bash
+opencode
+```
+
+Ketik:
 
 ```
 find_skills
 ```
 
-Atau gunakan tool `use_skill` dengan nama skill:
-
-```
-use_skill superpowers:brainstorming
-```
+✅ **Jika muncul list skills** = Setup Superpowers berhasil!
 
 ---
 
-## 📚 Referensi
+## Step 7: (Opsional) Plugin FS-Tool
 
-- [OpenCode Documentation](https://opencode.ai/docs/)
-- [Antigravity Auth Plugin (shekohex)](https://github.com/shekohex/opencode-google-antigravity-auth)
-- [Superpowers Skills](https://github.com/obra/superpowers)
-- [DCP Plugin](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning)
+Plugin untuk mengakses file yang biasanya diblokir (gitignored, hidden, .env).
+
+> ⚠️ **Berbahaya** - Hanya aktifkan jika benar-benar diperlukan.
+
+### 7.1 Buat File Plugin
+
+```powershell
+notepad "$env:USERPROFILE\.config\opencode\plugin\fs-tool.js"
+```
+
+### 7.2 Copy-paste kode:
+
+```javascript
+import { tool } from '@opencode-ai/plugin/tool';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+
+/* ===================== helpers ===================== */
+
+function norm(p) {
+  return p.replace(/\\/g, '/').trim();
+}
+
+function mustEnable() {
+  if (process.env.OPENCODE_UNSAFE_FILES !== '1') {
+    throw new Error(
+      'Unsafe FS tools disabled. Set OPENCODE_UNSAFE_FILES=1 and restart OpenCode.'
+    );
+  }
+}
+
+function baseDirFrom(ctx) {
+  return ctx.worktree || ctx.directory;
+}
+
+function resolvePath(inputPath, baseDir) {
+  const p = norm(inputPath);
+  return path.isAbsolute(p) ? p : path.resolve(baseDir, p);
+}
+
+function assertInBase(absPath, baseDir) {
+  if (process.env.OPENCODE_UNSAFE_ALLOW_OUTSIDE === '1') return absPath;
+
+  const rel = path.relative(baseDir, absPath);
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
+    throw new Error(`Path outside worktree blocked: ${absPath}`);
+  }
+  return absPath;
+}
+
+function assertNotGitDir(absPath) {
+  if (process.env.OPENCODE_UNSAFE_INCLUDE_GIT === '1') return;
+
+  const parts = norm(absPath).split('/');
+  if (parts.includes('.git')) {
+    throw new Error('Access to .git is blocked by default.');
+  }
+}
+
+async function safeStat(absPath) {
+  const st = await fs.lstat(absPath);
+  return {
+    isFile: st.isFile(),
+    isDir: st.isDirectory(),
+    isSymlink: st.isSymbolicLink(),
+    size: st.size,
+    mtimeMs: st.mtimeMs,
+  };
+}
+
+/* ===================== plugin ===================== */
+
+export default async function UnsafeFsPlugin(ctx) {
+  return {
+    tool: {
+      fs_read: tool({
+        description: 'Read any file (including gitignored & hidden). DANGEROUS.',
+        args: {
+          path: tool.schema.string(),
+          maxBytes: tool.schema.number().optional(),
+        },
+        async execute({ path: p, maxBytes }, tctx) {
+          mustEnable();
+          const base = baseDirFrom(tctx);
+          const abs = assertInBase(resolvePath(p, base), base);
+          assertNotGitDir(abs);
+
+          const limit = typeof maxBytes === 'number' ? maxBytes : 200_000;
+          const buf = await fs.readFile(abs);
+          if (buf.byteLength > limit) {
+            return `File too large (${buf.byteLength} bytes).`;
+          }
+          return buf.toString('utf8');
+        },
+      }),
+
+      fs_write: tool({
+        description: 'Create or overwrite file (ignored allowed).',
+        args: {
+          path: tool.schema.string(),
+          content: tool.schema.string(),
+        },
+        async execute({ path: p, content }, tctx) {
+          mustEnable();
+          const base = baseDirFrom(tctx);
+          const abs = assertInBase(resolvePath(p, base), base);
+          assertNotGitDir(abs);
+
+          await fs.mkdir(path.dirname(abs), { recursive: true });
+          await fs.writeFile(abs, content.replace(/\r\n/g, '\n'), 'utf8');
+          return 'ok';
+        },
+      }),
+
+      fs_append: tool({
+        description: 'Append to file.',
+        args: {
+          path: tool.schema.string(),
+          content: tool.schema.string(),
+        },
+        async execute({ path: p, content }, tctx) {
+          mustEnable();
+          const base = baseDirFrom(tctx);
+          const abs = assertInBase(resolvePath(p, base), base);
+          assertNotGitDir(abs);
+
+          await fs.appendFile(abs, content.replace(/\r\n/g, '\n'), 'utf8');
+          return 'ok';
+        },
+      }),
+
+      fs_delete: tool({
+        description: 'Delete file or directory.',
+        args: {
+          path: tool.schema.string(),
+          recursive: tool.schema.boolean().optional(),
+        },
+        async execute({ path: p, recursive }, tctx) {
+          mustEnable();
+          const base = baseDirFrom(tctx);
+          const abs = assertInBase(resolvePath(p, base), base);
+          assertNotGitDir(abs);
+
+          await fs.rm(abs, {
+            recursive: recursive !== false,
+            force: true,
+          });
+          return 'ok';
+        },
+      }),
+
+      fs_list_raw: tool({
+        description: 'List directory including hidden & ignored files.',
+        args: {
+          path: tool.schema.string().optional(),
+          maxItems: tool.schema.number().optional(),
+        },
+        async execute({ path: p, maxItems }, tctx) {
+          mustEnable();
+          const base = baseDirFrom(tctx);
+          const abs = assertInBase(resolvePath(p || '.', base), base);
+          assertNotGitDir(abs);
+
+          const limit = typeof maxItems === 'number' ? maxItems : 500;
+          const entries = await fs.readdir(abs, { withFileTypes: true });
+
+          return entries.slice(0, limit).map((e) => {
+            const child = path.join(abs, e.name);
+            return {
+              name: e.name,
+              path: norm(path.relative(base, child)),
+              type: e.isDirectory() ? 'dir' : e.isFile() ? 'file' : 'other',
+            };
+          });
+        },
+      }),
+
+      fs_stat: tool({
+        description: 'Get file metadata.',
+        args: { path: tool.schema.string() },
+        async execute({ path: p }, tctx) {
+          mustEnable();
+          const base = baseDirFrom(tctx);
+          const abs = assertInBase(resolvePath(p, base), base);
+          assertNotGitDir(abs);
+          return safeStat(abs);
+        },
+      }),
+    },
+  };
+}
+```
+
+### 7.3 Aktifkan Environment Variables
+
+Tambahkan ke PowerShell Profile agar permanen:
+
+```powershell
+Add-Content -Path $PROFILE -Value @"
+
+# OpenCode Unsafe FS Tools
+`$env:OPENCODE_UNSAFE_FILES = '1'
+`$env:OPENCODE_UNSAFE_ALLOW_OUTSIDE = '1'
+`$env:OPENCODE_UNSAFE_INCLUDE_GIT = '1'
+"@
+```
+
+Restart PowerShell, lalu jalankan `opencode`.
+
+### 7.4 Fungsi Tools FS-Tool
+
+| Tool            | Fungsi                                                              |
+| --------------- | ------------------------------------------------------------------- |
+| `fs_read`     | Membaca file apapun termasuk `.env`, `.gitignore`, hidden files |
+| `fs_write`    | Menulis/overwrite file apapun                                       |
+| `fs_append`   | Menambahkan content ke akhir file                                   |
+| `fs_delete`   | Menghapus file/folder (termasuk recursive)                          |
+| `fs_list_raw` | List directory termasuk hidden & ignored files                      |
+| `fs_stat`     | Mendapatkan metadata file (size, modified time, dll)                |
+
+> ⚠️ **Environment Variables:**
+>
+> - `OPENCODE_UNSAFE_FILES=1` - Wajib untuk mengaktifkan plugin
+> - `OPENCODE_UNSAFE_ALLOW_OUTSIDE=1` - Akses file di luar project
+> - `OPENCODE_UNSAFE_INCLUDE_GIT=1` - Akses folder `.git`
 
 ---
 
-**Dibuat oleh Jarvis untuk Tuan Fadhli** | Terakhir diperbarui: 23 Desember 2025
+## ✅ Setup Selesai!
+
+Sekarang Anda memiliki:
+
+- ✅ OpenCode dengan model AI gratis (Antigravity)
+- ✅ Claude Opus/Sonnet Thinking
+- ✅ OpenAI GPT 5.1/5.2 (opsional)
+- ✅ Superpowers skills system
+- ✅ FS-Tool untuk akses file unrestricted (opsional)
+
+---
+
+## Referensi
+
+- [NoeFabris/opencode-antigravity-auth](https://github.com/NoeFabris/opencode-antigravity-auth)
+- [numman-ali/opencode-openai-codex-auth](https://github.com/numman-ali/opencode-openai-codex-auth)
+- [obra/superpowers](https://github.com/obra/superpowers)
+
+---
+
+**Dibuat oleh Jarvis untuk Tuan Fadhli** | 24 Desember 2025
